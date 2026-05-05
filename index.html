@@ -288,7 +288,9 @@ const FILMS = [
 ];
 
 // Hero
-const HERO = FILMS[0];
+const ALL_FILMS = [...FILMS];
+const CURATED_ALL = [...ALL_FILMS].sort((a,b)=>a.rating-b.rating || a.year-b.year);
+const HERO = CURATED_ALL[Math.floor(CURATED_ALL.length/2)];
 (function(){
   document.getElementById('h-title').textContent = HERO.title;
   document.getElementById('h-meta').innerHTML =
@@ -336,11 +338,11 @@ function makeCard(f){
   return d;
 }
 
-function fillRow(id,films){ const r=document.getElementById(id); films.forEach(f=>r.appendChild(makeCard(f))); }
-fillRow('all-row',FILMS);
-fillRow('horror-row',FILMS.filter(f=>f.sections.includes('horror')));
-fillRow('comedy-row',FILMS.filter(f=>f.sections.includes('comedy')));
-fillRow('silent-row',FILMS.filter(f=>f.sections.includes('silent')));
+function fillRow(id,films){ const r=document.getElementById(id); r.innerHTML=''; films.forEach(f=>r.appendChild(makeCard(f))); }
+fillRow('all-row',CURATED_ALL);
+fillRow('horror-row',ALL_FILMS.filter(f=>f.sections.includes('horror')));
+fillRow('comedy-row',ALL_FILMS.filter(f=>f.sections.includes('comedy')));
+fillRow('silent-row',ALL_FILMS.filter(f=>f.sections.includes('silent')));
 
 // Modal
 function openModal(f){
@@ -367,7 +369,7 @@ function openPlayer(f){
       keyboard:{focused:true,global:true}
     });
   } else {
-    player.source={type:'video',sources:[{src:f.src,type:'video/mp4'}]};
+    player.source={type:'video',sources:[{src:f.src}]};
   }
   document.getElementById('player-wrap').classList.add('open');
   setTimeout(()=>{ try{player.play();}catch(e){} },400);
@@ -393,7 +395,7 @@ function doSearch(q){
     f.director.toLowerCase().includes(q.toLowerCase())||
     String(f.year).includes(q)
   );
-  if(!hits.length){ g.innerHTML=`<p style="color:var(--muted);font-size:.88rem">No results for "${q}"</p>`; return; }
+  if(!hits.length){ const msg=document.createElement('p'); msg.style.cssText='color:var(--muted);font-size:.88rem'; msg.textContent=`No results for "${q}"`; g.appendChild(msg); return; }
   hits.forEach(f=>g.appendChild(makeCard(f)));
 }
 
